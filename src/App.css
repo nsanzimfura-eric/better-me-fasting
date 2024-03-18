@@ -1,0 +1,68 @@
+body {
+  margin: 0;
+  overflow: hidden;
+}
+
+.gjs-one-bg {
+  background-color: #212134 !important;
+  color: #c0c0ce !important;
+}
+
+.gjs-one-bg svg {
+  color: #c0c0ce !important;
+}
+
+.gjs-toolbar-item svg {
+  color: #fff !important;
+}
+
+.gjs-clm-tag {
+  color: #fff !important;
+}
+
+.gjs-block:hover * {
+  color: #7877fa !important;
+}
+
+#topbar {
+  height: fit-content;
+  padding-top: 8px;
+  text-align: center;
+  background: #212134;
+}
+
+.topbar-container {
+  display: flex;
+  justify-content: space-between;
+  max-width: 100%;
+  padding: 0 1rem;
+}
+
+#topbar span {
+  font-size: 12px;
+  font-family: sans-serif;
+  border: 1px solid #dae5e6;
+  color: #c0c0ce;
+  padding: 5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+#topbar input {
+  outline: none;
+  border: none;
+  background: #2c2c3e;
+  color: #c0c0ce;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 0 10px;
+  width: 250px;
+  height: 30px;
+}
+
+#topbar span>i {
+  margin-left: 5px;
+  font-size: 14px;
+}

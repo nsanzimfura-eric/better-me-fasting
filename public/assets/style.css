@@ -1,0 +1,41 @@
+.common-builder-input {
+  border: 1px solid rgb(220, 220, 228);
+  outline: none;
+  border-radius: 4px;
+  padding: 0.65625rem 16px;
+  color: rgb(50, 50, 77);
+  font-weight: 400;
+  font-size: 0.875rem;
+  align-self: flex-start;
+  background: rgb(255, 255, 255);
+  transition-property: border-color, box-shadow, fill;
+  transition-duration: 0.2s;
+  margin-bottom: 10px;
+}
+
+.common-builder-editor {
+  overflow: hidden;
+  background: rgb(255, 255, 255);
+  font-size: 0.875rem;
+  height: 290px;
+  color: rgb(50, 50, 77);
+  direction: ltr;
+  border-radius: 4px;
+  border-style: solid;
+  border-width: 1px;
+  border-color: rgb(220, 220, 228);
+  align-items: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+}
+
+.common-builder-image {
+  margin-bottom: 10px;
+}
+
+.custom-component-wrapper {
+  padding: 5px;
+}

@@ -1,0 +1,72 @@
+image: node:16.11.1
+
+cache:
+  paths:
+    - node_modules/
+
+stages:
+  - build
+  - deploy
+
+# Job 1: Run build
+docker-build-dev:
+  image: docker:latest
+  stage: build
+  services:
+    - docker:dind
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY --username $CI_REGISTRY_USER --password-stdin
+
+  script:
+    - |
+      if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
+        tag=""
+        echo "Running on default branch '$CI_DEFAULT_BRANCH': tag = 'latest'"
+      else
+        tag=":$CI_COMMIT_REF_SLUG"
+        echo "Running on branch '$CI_COMMIT_BRANCH': tag = $tag"
+      fi
+    - docker build
+      --build-arg VITE_STRAPI_API_TOKEN="$VITE_STRAPI_API_TOKEN"
+      --build-arg VITE_STRAPI_API_ROOT="$VITE_STRAPI_API_ROOT"
+      --build-arg VITE_STRAPI_COMPONENT_URL="$VITE_STRAPI_COMPONENT_URL"
+      --build-arg VITE_STRAPI_COMPONENT_CONFIG_URL="$VITE_STRAPI_COMPONENT_CONFIG_URL"
+      --build-arg VITE_STRAPI_CONTENT_TYPE="$VITE_STRAPI_CONTENT_TYPE"
+      --build-arg VITE_STRAPI_COMPONENT_DATA_URL="$VITE_STRAPI_COMPONENT_DATA_URL"
+      --pull -t "$CI_REGISTRY_IMAGE${tag}" .
+
+    - docker push "$CI_REGISTRY_IMAGE${tag}"
+
+  only:
+    - main
+
+# Job 2: Deploy to server
+deploy-to-server:
+  stage: deploy
+  image: alpine:latest
+  allow_failure: false
+  script:
+    - chmod og= $ID_RSA
+    - apk update && apk add openssh-client
+
+    # Stop and remove existing Docker container
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "sudo docker stop $SERVICE_NAME || true"
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "sudo docker rm $SERVICE_NAME || true"
+
+    # Prune Docker containers (remove unused containers)
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "sudo docker container prune -f || true"
+
+    # Remove existing Docker image
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "sudo docker image rm $CI_REGISTRY_IMAGE:latest || true"
+
+    # Pull the new container image
+    - echo "pull new container"
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "sudo docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY"
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "sudo docker pull $CI_REGISTRY_IMAGE:latest"
+
+    # Run the new container
+    - echo "run new container"
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "sudo docker run -d --restart unless-stopped --name $SERVICE_NAME -p 3000:80 $CI_REGISTRY_IMAGE:latest"
+
+  only:
+    - main

@@ -1,0 +1,4 @@
+docker-build:
+	docker build --build-arg VITE_STRAPI_API_TOKEN="Put your api token here" --build-arg VITE_STRAPI_API_ROOT="http://localhost:1337/api" --build-arg VITE_STRAPI_COMPONENT_URL="http://localhost:1337/api/content-type-builder/components" --build-arg VITE_STRAPI_COMPONENT_CONFIG_URL="http://localhost:1337/api/component-configurations" --build-arg VITE_STRAPI_CONTENT_TYPE="http://localhost:1337/api/content-type-builder/content-types/api::" --build-arg VITE_STRAPI_COMPONENT_DATA_URL="http://localhost:1337/api/html-storages" -t web-builder:latest .
+docker-run:
+	docker run -d --name better-me -p 3000:80 --platform linux/amd64 web-builder:latest
